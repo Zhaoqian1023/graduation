@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.skd.dao.StoreDao" >
+  <resultMap id="BaseResultMap" type="com.skd.pojo.Store" >
+    <id column="SID" property="sid" jdbcType="VARCHAR" />
+    <result column="STORE_NAME" property="storeName" jdbcType="VARCHAR" />
+    <result column="HOST_NAME" property="hostName" jdbcType="VARCHAR" />
+    <result column="AREA" property="area" jdbcType="VARCHAR" />
+    <result column="PHONE" property="phone" jdbcType="VARCHAR" />
+    <result column="LOCATION" property="location" jdbcType="VARCHAR" />
+    <result column="IDENTITY_1_URL" property="identity1Url" jdbcType="VARCHAR" />
+    <result column="IDENTITY_2_URL" property="identity2Url" jdbcType="VARCHAR" />
+    <result column="STORE_PHOTO" property="storePhoto" jdbcType="VARCHAR" />
+    <result column="LICENSE" property="license" jdbcType="VARCHAR" />
+    <result column="HONOR" property="honor" jdbcType="INTEGER" />
+    <result column="APPLY_TIME" property="applyTime" jdbcType="TIMESTAMP" />
+    <result column="APPLY_PASS" property="applyPass" jdbcType="TIMESTAMP" />
+    <result column="STATUS" property="status" jdbcType="INTEGER" />
+    <result column="USER_ID" property="userId" jdbcType="VARCHAR" />
+  </resultMap>
+ 
+  <sql id="Base_Column_List" >
+    SID, STORE_NAME, HOST_NAME, AREA, PHONE, LOCATION, IDENTITY_1_URL, IDENTITY_2_URL, 
+    STORE_PHOTO, LICENSE, HONOR, APPLY_TIME, APPLY_PASS, STATUS, USER_ID
+  </sql>
+  
+  <select id="findById" resultType="map">
+  		select 
+  			<include refid="Base_Column_List" />
+  		from t_stores
+  		where SID=#{id}
+  
+  
+  </select>
+  
+  
+  <select id="getStores" resultMap="BaseResultMap">
+  		select 
+  			<include refid="Base_Column_List" />
+  		from t_stores
+  		<where>
+			<if test="1==1">
+				1=1
+			</if>
+			<if test="store!=null and store.sid!=null">
+				and SID=#{store.sid}
+			</if>
+			<if test="store!=null and store.storeName!=null">
+				and STORE_NAME like concat(concat('%',#{store.storeName}),'%')
+			</if>
+			<if test="store!=null and store.hostName!=null">
+				and HOST_NAME=#{store.hostName}
+			</if>
+			<if test="store!=null and store.area!=null">
+				and AREA like concat(concat('%',#{store.area}),'%')
+			</if>
+			<if test="store!=null and store.phone!=null">
+				and PHONE=#{store.phone}
+			</if>
+			<if test="store!=null and store.location!=null">
+				and LOCATION concat(concat('%',#{store.location}),'%')
+			</if>
+			<if test="store!=null and store.identity1Url!=null">
+				and IDENTITY_1_URL=#{store.identity1Url}
+			</if>
+			<if test="store!=null and store.identity2Url!=null">
+				and IDENTITY_2_URL=#{store.identity2Url}
+			</if>
+			<if test="store!=null and store.storePhoto!=null">
+				and STORE_PHOTO=#{store.storePhoto}
+			</if>
+			<if test="store!=null and store.license!=null">
+				and LICENSE=#{store.license}
+			</if>
+			<if test="store!=null and store.honor!=null">
+				and HONOR=#{store.honor}
+			</if>
+			<if test="store!=null and store.applyTime!=null">
+				and APPLY_TIME=#{store.applyTime}
+			</if>
+			<if test="store!=null and store.applyPass!=null">
+				and APPLY_PASS=#{store.applyPass}
+			</if>
+			<if test="store!=null and store.status!=null">
+				and STATUS=#{store.status}
+			</if>
+			<if test="store!=null and store.userId!=null">
+				and USER_ID=#{store.userId}
+			</if>
+		</where>
+		<if test="rule!=null">
+			order by ${rule} 
+		</if>
+		<if test="pageobject!=null and pageobject.pageSize != 0 and pageobject.pageSize != null">
+			LIMIT #{pageobject.startIndex},#{pageobject.pageSize}
+		</if>
+  
+  
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_stores
+    where SID = #{sid,jdbcType=VARCHAR}
+  </delete>
+  
+  <insert id="insert" parameterType="com.skd.pojo.Store" >
+    insert into t_stores (SID, STORE_NAME, HOST_NAME, 
+      AREA, PHONE, LOCATION, 
+      IDENTITY_1_URL, IDENTITY_2_URL, STORE_PHOTO, 
+      LICENSE, HONOR, APPLY_TIME, 
+      APPLY_PASS, STATUS, USER_ID
+      )
+    values (#{sid,jdbcType=VARCHAR}, #{storeName,jdbcType=VARCHAR}, #{hostName,jdbcType=VARCHAR}, 
+      #{area,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{location,jdbcType=VARCHAR}, 
+      #{identity1Url,jdbcType=VARCHAR}, #{identity2Url,jdbcType=VARCHAR}, #{storePhoto,jdbcType=VARCHAR}, 
+      #{license,jdbcType=VARCHAR}, #{honor,jdbcType=INTEGER}, #{applyTime,jdbcType=TIMESTAMP}, 
+      #{applyPass,jdbcType=TIMESTAMP}, #{status,jdbcType=INTEGER}, #{userId,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.skd.pojo.Store" >
+    insert into t_stores
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="sid != null" >
+        SID,
+      </if>
+      <if test="storeName != null" >
+        STORE_NAME,
+      </if>
+      <if test="hostName != null" >
+        HOST_NAME,
+      </if>
+      <if test="area != null" >
+        AREA,
+      </if>
+      <if test="phone != null" >
+        PHONE,
+      </if>
+      <if test="location != null" >
+        LOCATION,
+      </if>
+      <if test="identity1Url != null" >
+        IDENTITY_1_URL,
+      </if>
+      <if test="identity2Url != null" >
+        IDENTITY_2_URL,
+      </if>
+      <if test="storePhoto != null" >
+        STORE_PHOTO,
+      </if>
+      <if test="license != null" >
+        LICENSE,
+      </if>
+      <if test="honor != null" >
+        HONOR,
+      </if>
+      <if test="applyTime != null" >
+        APPLY_TIME,
+      </if>
+      <if test="applyPass != null" >
+        APPLY_PASS,
+      </if>
+      <if test="status != null" >
+        STATUS,
+      </if>
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="sid != null" >
+        #{sid,jdbcType=VARCHAR},
+      </if>
+      <if test="storeName != null" >
+        #{storeName,jdbcType=VARCHAR},
+      </if>
+      <if test="hostName != null" >
+        #{hostName,jdbcType=VARCHAR},
+      </if>
+      <if test="area != null" >
+        #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="location != null" >
+        #{location,jdbcType=VARCHAR},
+      </if>
+      <if test="identity1Url != null" >
+        #{identity1Url,jdbcType=VARCHAR},
+      </if>
+      <if test="identity2Url != null" >
+        #{identity2Url,jdbcType=VARCHAR},
+      </if>
+      <if test="storePhoto != null" >
+        #{storePhoto,jdbcType=VARCHAR},
+      </if>
+      <if test="license != null" >
+        #{license,jdbcType=VARCHAR},
+      </if>
+      <if test="honor != null" >
+        #{honor,jdbcType=INTEGER},
+      </if>
+      <if test="applyTime != null" >
+        #{applyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="applyPass != null" >
+        #{applyPass,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.skd.pojo.Store" >
+    update t_stores
+    <set >
+      <if test="storeName != null" >
+        STORE_NAME = #{storeName,jdbcType=VARCHAR},
+      </if>
+      <if test="hostName != null" >
+        HOST_NAME = #{hostName,jdbcType=VARCHAR},
+      </if>
+      <if test="area != null" >
+        AREA = #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        PHONE = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="location != null" >
+        LOCATION = #{location,jdbcType=VARCHAR},
+      </if>
+      <if test="identity1Url != null" >
+        IDENTITY_1_URL = #{identity1Url,jdbcType=VARCHAR},
+      </if>
+      <if test="identity2Url != null" >
+        IDENTITY_2_URL = #{identity2Url,jdbcType=VARCHAR},
+      </if>
+      <if test="storePhoto != null" >
+        STORE_PHOTO = #{storePhoto,jdbcType=VARCHAR},
+      </if>
+      <if test="license != null" >
+        LICENSE = #{license,jdbcType=VARCHAR},
+      </if>
+      <if test="honor != null" >
+        HONOR = #{honor,jdbcType=INTEGER},
+      </if>
+      <if test="applyTime != null" >
+        APPLY_TIME = #{applyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="applyPass != null" >
+        APPLY_PASS = #{applyPass,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        STATUS = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        USER_ID = #{userId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where SID = #{sid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.skd.pojo.Store" >
+    update t_stores
+    set STORE_NAME = #{storeName,jdbcType=VARCHAR},
+      HOST_NAME = #{hostName,jdbcType=VARCHAR},
+      AREA = #{area,jdbcType=VARCHAR},
+      PHONE = #{phone,jdbcType=VARCHAR},
+      LOCATION = #{location,jdbcType=VARCHAR},
+      IDENTITY_1_URL = #{identity1Url,jdbcType=VARCHAR},
+      IDENTITY_2_URL = #{identity2Url,jdbcType=VARCHAR},
+      STORE_PHOTO = #{storePhoto,jdbcType=VARCHAR},
+      LICENSE = #{license,jdbcType=VARCHAR},
+      HONOR = #{honor,jdbcType=INTEGER},
+      APPLY_TIME = #{applyTime,jdbcType=TIMESTAMP},
+      APPLY_PASS = #{applyPass,jdbcType=TIMESTAMP},
+      STATUS = #{status,jdbcType=INTEGER},
+      USER_ID = #{userId,jdbcType=VARCHAR}
+    where SID = #{sid,jdbcType=VARCHAR}
+  </update>
+</mapper>

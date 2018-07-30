@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.skd.dao.PayDao" >
+  <resultMap id="BaseResultMap" type="com.skd.pojo.Pay" >
+    <id column="PAY_ID" property="payId" jdbcType="VARCHAR" />
+    <result column="PAY_MONEY" property="payMoney" jdbcType="INTEGER" />
+    <result column="PAY_TYPE" property="payType" jdbcType="INTEGER" />
+    <result column="OTHER_ID" property="otherId" jdbcType="VARCHAR" />
+    <result column="PAY_TIME" property="payTime" jdbcType="TIMESTAMP" />
+    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+    <result column="ORDER_ID" property="orderId" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  
+  <sql id="Base_Column_List" >
+    PAY_ID, PAY_MONEY, PAY_TYPE, OTHER_ID, PAY_TIME, REMARK, ORDER_ID
+  </sql>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_pays
+    where PAY_ID = #{payId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_pays
+    where PAY_ID = #{payId,jdbcType=VARCHAR}
+  </delete>
+  
+  <insert id="insert" parameterType="com.skd.pojo.Pay" >
+    insert into t_pays (PAY_ID, PAY_MONEY, PAY_TYPE, 
+      OTHER_ID, PAY_TIME, REMARK, 
+      ORDER_ID)
+    values (#{payId,jdbcType=VARCHAR}, #{payMoney,jdbcType=INTEGER}, #{payType,jdbcType=INTEGER}, 
+      #{otherId,jdbcType=VARCHAR}, #{payTime,jdbcType=TIMESTAMP}, #{remark,jdbcType=VARCHAR}, 
+      #{orderId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.skd.pojo.Pay" >
+    insert into t_pays
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="payId != null" >
+        PAY_ID,
+      </if>
+      <if test="payMoney != null" >
+        PAY_MONEY,
+      </if>
+      <if test="payType != null" >
+        PAY_TYPE,
+      </if>
+      <if test="otherId != null" >
+        OTHER_ID,
+      </if>
+      <if test="payTime != null" >
+        PAY_TIME,
+      </if>
+      <if test="remark != null" >
+        REMARK,
+      </if>
+      <if test="orderId != null" >
+        ORDER_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="payId != null" >
+        #{payId,jdbcType=VARCHAR},
+      </if>
+      <if test="payMoney != null" >
+        #{payMoney,jdbcType=INTEGER},
+      </if>
+      <if test="payType != null" >
+        #{payType,jdbcType=INTEGER},
+      </if>
+      <if test="otherId != null" >
+        #{otherId,jdbcType=VARCHAR},
+      </if>
+      <if test="payTime != null" >
+        #{payTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="orderId != null" >
+        #{orderId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.skd.pojo.Pay" >
+    update t_pays
+    <set >
+      <if test="payMoney != null" >
+        PAY_MONEY = #{payMoney,jdbcType=INTEGER},
+      </if>
+      <if test="payType != null" >
+        PAY_TYPE = #{payType,jdbcType=INTEGER},
+      </if>
+      <if test="otherId != null" >
+        OTHER_ID = #{otherId,jdbcType=VARCHAR},
+      </if>
+      <if test="payTime != null" >
+        PAY_TIME = #{payTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null" >
+        REMARK = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="orderId != null" >
+        ORDER_ID = #{orderId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where PAY_ID = #{payId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.skd.pojo.Pay" >
+    update t_pays
+    set PAY_MONEY = #{payMoney,jdbcType=INTEGER},
+      PAY_TYPE = #{payType,jdbcType=INTEGER},
+      OTHER_ID = #{otherId,jdbcType=VARCHAR},
+      PAY_TIME = #{payTime,jdbcType=TIMESTAMP},
+      REMARK = #{remark,jdbcType=VARCHAR},
+      ORDER_ID = #{orderId,jdbcType=VARCHAR}
+    where PAY_ID = #{payId,jdbcType=VARCHAR}
+  </update>
+</mapper>

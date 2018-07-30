@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.skd.dao.FavoriteDao" >
+  <resultMap id="BaseResultMap" type="com.skd.pojo.Favorite" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="F_TYPE" property="fType" jdbcType="INTEGER" />
+    <result column="F_TIME" property="fTime" jdbcType="TIMESTAMP" />
+    <result column="STATUS" property="status" jdbcType="INTEGER" />
+    <result column="F_KEY" property="fKey" jdbcType="VARCHAR" />
+    <result column="F_UID" property="fUid" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    ID, F_TYPE, F_TIME, STATUS, F_KEY, F_UID
+  </sql>
+  <select id="findObjects" resultType="map">
+		select
+		<include refid="Base_Column_List" />
+		from t_favorite
+		<where>
+			<if test="1==1">
+				1=1
+			</if>
+			<if test="entity!=null and entity.id!=null">
+				and ID=#{entity.id}
+			</if>
+			<if test="entity!=null and entity.fType!=null">
+				and F_TYPE=#{entity.fType}
+			</if>
+			<if test="entity!=null and entity.fTime!=null">
+				and F_TIME=#{entity.fTime}
+			</if>
+			<if test="entity!=null and entity.status!=null">
+				and STATUS=#{entity.status}
+			</if>
+			<if test="entity!=null and entity.fKey!=null">
+				and F_KEY=#{entity.fKey}
+			</if>
+			<if test="entity!=null and entity.fUid!=null">
+				and F_UID=#{entity.fUid}
+			</if>
+		</where>
+		<if test="rule!=null">
+			order by ${rule}
+		</if>
+		<if
+			test="pageobject!=null and pageobject.pageSize != 0 and pageobject.pageSize != null">
+			LIMIT #{pageobject.startIndex},#{pageobject.pageSize}
+		</if>
+  
+  
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_favorite
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_favorite
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="com.skd.pojo.Favorite" >
+    insert into t_favorite (ID, F_TYPE, F_TIME, 
+      STATUS, F_KEY, F_UID)
+    values (#{id,jdbcType=INTEGER}, #{fType,jdbcType=INTEGER}, #{fTime,jdbcType=TIMESTAMP}, 
+      #{status,jdbcType=INTEGER}, #{fKey,jdbcType=VARCHAR}, #{fUid,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.skd.pojo.Favorite" >
+    insert into t_favorite
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="fType != null" >
+        F_TYPE,
+      </if>
+      <if test="fTime != null" >
+        F_TIME,
+      </if>
+      <if test="status != null" >
+        STATUS,
+      </if>
+      <if test="fKey != null" >
+        F_KEY,
+      </if>
+      <if test="fUid != null" >
+        F_UID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="fType != null" >
+        #{fType,jdbcType=INTEGER},
+      </if>
+      <if test="fTime != null" >
+        #{fTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="fKey != null" >
+        #{fKey,jdbcType=VARCHAR},
+      </if>
+      <if test="fUid != null" >
+        #{fUid,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.skd.pojo.Favorite" >
+    update t_favorite
+    <set >
+      <if test="fType != null" >
+        F_TYPE = #{fType,jdbcType=INTEGER},
+      </if>
+      <if test="fTime != null" >
+        F_TIME = #{fTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        STATUS = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="fKey != null" >
+        F_KEY = #{fKey,jdbcType=VARCHAR},
+      </if>
+      <if test="fUid != null" >
+        F_UID = #{fUid,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.skd.pojo.Favorite" >
+    update t_favorite
+    set F_TYPE = #{fType,jdbcType=INTEGER},
+      F_TIME = #{fTime,jdbcType=TIMESTAMP},
+      STATUS = #{status,jdbcType=INTEGER},
+      F_KEY = #{fKey,jdbcType=VARCHAR},
+      F_UID = #{fUid,jdbcType=VARCHAR}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.skd.dao.TaskDao">
+	<resultMap id="BaseResultMap" type="com.skd.pojo.Task">
+		<id column="ID" property="id" jdbcType="INTEGER" />
+		<result column="TITLE" property="title" jdbcType="VARCHAR" />
+		<result column="ADDR" property="addr" jdbcType="VARCHAR" />
+		<result column="LINKMAN" property="linkman" jdbcType="VARCHAR" />
+		<result column="PHONE" property="phone" jdbcType="VARCHAR" />
+		<result column="WORKLOAD" property="workload" jdbcType="DOUBLE" />
+		<result column="PAY_TYPE" property="payType" jdbcType="VARCHAR" />
+		<result column="PAY_MONEY" property="payMoney" jdbcType="INTEGER" />
+		<result column="PUBLISH_TIME" property="publishTime" jdbcType="TIMESTAMP" />
+		<result column="STATUS" property="status" jdbcType="INTEGER" />
+		<result column="TASK_GRADE" property="taskGrade" jdbcType="DOUBLE" />
+		<result column="REMARK" property="remark" jdbcType="VARCHAR" />
+		<result column="PUBLISH_USER" property="publishUser" jdbcType="VARCHAR" />
+		<result column="ACCEPT_USER" property="acceptUser" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap id="ResultMapWithBLOBs" type="com.skd.pojo.Task"
+		extends="BaseResultMap">
+		<result column="CONTENT" property="content" jdbcType="LONGVARCHAR" />
+	</resultMap>
+
+
+	<sql id="Base_Column_List">
+		ID, TITLE, ADDR, LINKMAN, PHONE, WORKLOAD, PAY_TYPE, PAY_MONEY,
+		PUBLISH_TIME, STATUS,
+		TASK_GRADE, REMARK, PUBLISH_USER, ACCEPT_USER
+	</sql>
+	<sql id="Blob_Column_List">
+		CONTENT
+	</sql>
+	
+	<select id="findObjects" resultType="map">
+		select
+		<include refid="Base_Column_List" />,
+		<include refid="Blob_Column_List" />
+		from t_tasks
+		<where>
+			<if test="1==1">
+				1=1
+			</if>
+			<if test="entity!=null and entity.id!=null">
+				and ID=#{entity.id}
+			</if>
+			<if test="entity!=null and entity.title!=null">
+				and TITLE=#{entity.title}
+			</if>
+			<if test="entity!=null and entity.addr!=null">
+				and ADDR=#{entity.addr}
+			</if>
+			<if test="entity!=null and entity.linkman!=null">
+				and LINKMAN=#{entity.linkman}
+			</if>
+			<if test="entity!=null and entity.phone!=null">
+				and PHONE=#{entity.phone}
+			</if>
+			<if test="entity!=null and entity.workload!=null">
+				and WORKLOAD=#{entity.workload}
+			</if>
+			<if test="entity!=null and entity.payType!=null">
+				and PAY_TYPE=#{entity.payType}
+			</if>
+			<if test="entity!=null and entity.payMoney!=null">
+				and PAY_MONEY=#{entity.payMoney}
+			</if>
+			<if test="entity!=null and entity.publishTime!=null">
+				and PUBLISH_TIME=#{entity.publishTime}
+			</if>
+			<if test="entity!=null and entity.status!=null">
+				and STATUS=#{entity.status}
+			</if>
+			<if test="entity!=null and entity.taskGrade!=null">
+				and TASK_GRADE=#{entity.taskGrade}
+			</if>
+			<if test="entity!=null and entity.remark!=null">
+				and REMARK like concat(concat('%',#{entity.remark}),'%')
+			</if>
+			<if test="entity!=null and entity.publishUser!=null">
+				and PUBLISH_USER=#{entity.publishUser}
+			</if>
+			<if test="entity!=null and entity.acceptUser!=null">
+				and ACCEPT_USER=#{entity.acceptUser}
+			</if>
+			<if test="entity!=null and entity.content!=null">
+				and CONTENT like concat(concat('%',#{entity.content}),'%')
+			</if>
+		</where>
+		<if test="rule!=null">
+			order by ${rule}
+		</if>
+		<if
+			test="pageobject!=null and pageobject.pageSize != 0 and pageobject.pageSize != null">
+			LIMIT #{pageobject.startIndex},#{pageobject.pageSize}
+		</if>
+
+	</select>
+
+	<select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		from t_tasks
+		where ID = #{id,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from t_tasks
+		where ID = #{id,jdbcType=INTEGER}
+	</delete>
+
+	
+	<insert id="insert" parameterType="com.skd.pojo.Task">
+		insert into t_tasks (ID, TITLE, ADDR,
+		LINKMAN, PHONE, WORKLOAD,
+		PAY_TYPE, PAY_MONEY, PUBLISH_TIME,
+		STATUS, TASK_GRADE, REMARK,
+		PUBLISH_USER, ACCEPT_USER, CONTENT
+		)
+		values (#{id,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR},
+		#{addr,jdbcType=VARCHAR},
+		#{linkman,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{workload,jdbcType=DOUBLE},
+		#{payType,jdbcType=VARCHAR}, #{payMoney,jdbcType=INTEGER},
+		#{publishTime,jdbcType=TIMESTAMP},
+		#{status,jdbcType=INTEGER}, #{taskGrade,jdbcType=DOUBLE}, #{remark,jdbcType=VARCHAR},
+		#{publishUser,jdbcType=VARCHAR}, #{acceptUser,jdbcType=VARCHAR},
+		#{content,jdbcType=LONGVARCHAR}
+		)
+	</insert>
+	<insert id="insertBatch">
+		insert into t_tasks (TITLE, ADDR,
+		LINKMAN, PHONE, WORKLOAD,
+		PAY_TYPE, PAY_MONEY, PUBLISH_TIME,
+		STATUS, REMARK, PUBLISH_USER, CONTENT
+		)
+		values
+		<foreach collection="tasks" item="task" separator=",">
+			(#{task.title,jdbcType=VARCHAR}, #{task.addr,jdbcType=VARCHAR},
+			#{task.linkman,jdbcType=VARCHAR}, #{task.phone,jdbcType=VARCHAR},
+			#{task.workload,jdbcType=DOUBLE},
+			#{task.payType,jdbcType=VARCHAR}, #{task.payMoney,jdbcType=INTEGER},
+			#{task.publishTime,jdbcType=TIMESTAMP},
+			#{task.status,jdbcType=INTEGER}, #{task.remark,jdbcType=VARCHAR},
+			#{task.publishUser,jdbcType=VARCHAR},
+			#{task.content,jdbcType=LONGVARCHAR}
+			)
+		</foreach>
+
+	</insert>
+
+	<insert id="insertSelective" parameterType="com.skd.pojo.Task">
+		insert into t_tasks
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				ID,
+			</if>
+			<if test="title != null">
+				TITLE,
+			</if>
+			<if test="addr != null">
+				ADDR,
+			</if>
+			<if test="linkman != null">
+				LINKMAN,
+			</if>
+			<if test="phone != null">
+				PHONE,
+			</if>
+			<if test="workload != null">
+				WORKLOAD,
+			</if>
+			<if test="payType != null">
+				PAY_TYPE,
+			</if>
+			<if test="payMoney != null">
+				PAY_MONEY,
+			</if>
+			<if test="publishTime != null">
+				PUBLISH_TIME,
+			</if>
+			<if test="status != null">
+				STATUS,
+			</if>
+			<if test="taskGrade != null">
+				TASK_GRADE,
+			</if>
+			<if test="remark != null">
+				REMARK,
+			</if>
+			<if test="publishUser != null">
+				PUBLISH_USER,
+			</if>
+			<if test="acceptUser != null">
+				ACCEPT_USER,
+			</if>
+			<if test="content != null">
+				CONTENT,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="title != null">
+				#{title,jdbcType=VARCHAR},
+			</if>
+			<if test="addr != null">
+				#{addr,jdbcType=VARCHAR},
+			</if>
+			<if test="linkman != null">
+				#{linkman,jdbcType=VARCHAR},
+			</if>
+			<if test="phone != null">
+				#{phone,jdbcType=VARCHAR},
+			</if>
+			<if test="workload != null">
+				#{workload,jdbcType=DOUBLE},
+			</if>
+			<if test="payType != null">
+				#{payType,jdbcType=VARCHAR},
+			</if>
+			<if test="payMoney != null">
+				#{payMoney,jdbcType=INTEGER},
+			</if>
+			<if test="publishTime != null">
+				#{publishTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=INTEGER},
+			</if>
+			<if test="taskGrade != null">
+				#{taskGrade,jdbcType=DOUBLE},
+			</if>
+			<if test="remark != null">
+				#{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="publishUser != null">
+				#{publishUser,jdbcType=VARCHAR},
+			</if>
+			<if test="acceptUser != null">
+				#{acceptUser,jdbcType=VARCHAR},
+			</if>
+			<if test="content != null">
+				#{content,jdbcType=LONGVARCHAR},
+			</if>
+		</trim>
+	</insert>
+
+
+
+	<update id="updateByPrimaryKeySelective" parameterType="com.skd.pojo.Task">
+		update t_tasks
+		<set>
+			<if test="title != null">
+				TITLE = #{title,jdbcType=VARCHAR},
+			</if>
+			<if test="addr != null">
+				ADDR = #{addr,jdbcType=VARCHAR},
+			</if>
+			<if test="linkman != null">
+				LINKMAN = #{linkman,jdbcType=VARCHAR},
+			</if>
+			<if test="phone != null">
+				PHONE = #{phone,jdbcType=VARCHAR},
+			</if>
+			<if test="workload != null">
+				WORKLOAD = #{workload,jdbcType=DOUBLE},
+			</if>
+			<if test="payType != null">
+				PAY_TYPE = #{payType,jdbcType=VARCHAR},
+			</if>
+			<if test="payMoney != null">
+				PAY_MONEY = #{payMoney,jdbcType=INTEGER},
+			</if>
+			<if test="publishTime != null">
+				PUBLISH_TIME = #{publishTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="status != null">
+				STATUS = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="taskGrade != null">
+				TASK_GRADE = #{taskGrade,jdbcType=DOUBLE},
+			</if>
+			<if test="remark != null">
+				REMARK = #{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="publishUser != null">
+				PUBLISH_USER = #{publishUser,jdbcType=VARCHAR},
+			</if>
+			<if test="acceptUser != null">
+				ACCEPT_USER = #{acceptUser,jdbcType=VARCHAR},
+			</if>
+			<if test="content != null">
+				CONTENT = #{content,jdbcType=LONGVARCHAR},
+			</if>
+		</set>
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKeyWithBLOBs" parameterType="com.skd.pojo.Task">
+		update t_tasks
+		set TITLE = #{title,jdbcType=VARCHAR},
+		ADDR = #{addr,jdbcType=VARCHAR},
+		LINKMAN = #{linkman,jdbcType=VARCHAR},
+		PHONE = #{phone,jdbcType=VARCHAR},
+		WORKLOAD = #{workload,jdbcType=DOUBLE},
+		PAY_TYPE = #{payType,jdbcType=VARCHAR},
+		PAY_MONEY = #{payMoney,jdbcType=INTEGER},
+		PUBLISH_TIME = #{publishTime,jdbcType=TIMESTAMP},
+		STATUS = #{status,jdbcType=INTEGER},
+		TASK_GRADE = #{taskGrade,jdbcType=DOUBLE},
+		REMARK = #{remark,jdbcType=VARCHAR},
+		PUBLISH_USER = #{publishUser,jdbcType=VARCHAR},
+		ACCEPT_USER = #{acceptUser,jdbcType=VARCHAR},
+		CONTENT = #{content,jdbcType=LONGVARCHAR}
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.skd.pojo.Task">
+		update t_tasks
+		set TITLE = #{title,jdbcType=VARCHAR},
+		ADDR = #{addr,jdbcType=VARCHAR},
+		LINKMAN = #{linkman,jdbcType=VARCHAR},
+		PHONE = #{phone,jdbcType=VARCHAR},
+		WORKLOAD = #{workload,jdbcType=DOUBLE},
+		PAY_TYPE = #{payType,jdbcType=VARCHAR},
+		PAY_MONEY = #{payMoney,jdbcType=INTEGER},
+		PUBLISH_TIME = #{publishTime,jdbcType=TIMESTAMP},
+		STATUS = #{status,jdbcType=INTEGER},
+		TASK_GRADE = #{taskGrade,jdbcType=DOUBLE},
+		REMARK = #{remark,jdbcType=VARCHAR},
+		PUBLISH_USER = #{publishUser,jdbcType=VARCHAR},
+		ACCEPT_USER = #{acceptUser,jdbcType=VARCHAR}
+		where ID = #{id,jdbcType=INTEGER}
+	</update>
+</mapper>

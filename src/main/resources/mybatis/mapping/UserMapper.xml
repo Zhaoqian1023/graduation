@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.skd.dao.UserDao" >
+  <resultMap id="BaseResultMap" type="com.skd.pojo.User" >
+    <id column="USER_ID" property="userId" jdbcType="VARCHAR" />
+    <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+    <result column="USER_PHOTO" property="userPhoto" jdbcType="VARCHAR" />
+    <result column="UPWD" property="upwd" jdbcType="VARCHAR" />
+    <result column="SEX" property="sex" jdbcType="VARCHAR" />
+    <result column="AGE" property="age" jdbcType="INTEGER" />
+    <result column="PHONE" property="phone" jdbcType="VARCHAR" />
+    <result column="EMAIL" property="email" jdbcType="VARCHAR" />
+    <result column="AREA" property="area" jdbcType="VARCHAR" />
+    <result column="LOCATION" property="location" jdbcType="VARCHAR" />
+    <result column="REGIS_TIME" property="regisTime" jdbcType="TIMESTAMP" />
+    <result column="REGIS_TYPE" property="regisType" jdbcType="VARCHAR" />
+    <result column="REAL_NAME" property="realName" jdbcType="VARCHAR" />
+    <result column="MONEY" property="money" jdbcType="INTEGER" />
+    <result column="INVITE_CODE" property="inviteCode" jdbcType="VARCHAR" />
+    <result column="PROFESSION" property="profession" jdbcType="VARCHAR" />
+    <result column="CROP" property="crop" jdbcType="VARCHAR" />
+    <result column="CROP_AREA" property="cropArea" jdbcType="DOUBLE" />
+  </resultMap>
+  
+  
+  <sql id="Base_Column_List" >
+    USER_ID, USER_NAME, USER_PHOTO, UPWD, SEX, AGE, PHONE, EMAIL, AREA, LOCATION, REGIS_TIME, 
+    REGIS_TYPE, REAL_NAME, MONEY, INVITE_CODE, PROFESSION, CROP, CROP_AREA
+  </sql>
+  
+  <select id="findUserById" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_users
+    where USER_ID = #{id,jdbcType=VARCHAR}
+  </select>
+  <select id="findById" resultType="hashmap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_users
+    where USER_ID = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="getUsers" resultMap="BaseResultMap">
+  	select
+		<include refid="Base_Column_List" />
+	from t_users
+		<where>
+			<if test="1==1">
+				1=1
+			</if>
+			<if test="user!=null and user.userId!=null">
+				and USER_ID=#{user.userId}
+			</if>
+			<if test="user!=null and user.userName!=null">
+				and USER_NAME=#{user.userName}
+			</if>
+			<if test="user!=null and user.userPhoto!=null">
+				and USER_PHOTO=#{user.userPhoto}
+			</if>
+			<if test="user!=null and user.upwd!=null">
+				and UPWD=#{user.upwd}
+			</if>
+			<if test="user!=null and user.sex!=null">
+				and SEX=#{user.sex}
+			</if>
+			<if test="user!=null and user.age!=null">
+				and AGE=#{user.age}
+			</if>
+			<if test="user!=null and user.phone!=null">
+				and PHONE=#{user.phone}
+			</if>
+			<if test="user!=null and user.email!=null">
+				and EMAIL=#{user.email}
+			</if>
+			<if test="user!=null and user.area!=null">
+				and AREA like concat(concat('%',#{user.area}),'%')
+			</if>
+			<if test="user!=null and user.location!=null">
+				and LOCATION like concat(concat('%',#{user.location}),'%')
+			</if>
+			<if test="user!=null and user.regisTime!=null">
+				and REGIS_TIME=#{user.regisTime}
+			</if>
+			<if test="user!=null and user.regisType!=null">
+				and REGIS_TYPE=#{user.regisType}
+			</if>
+			<if test="user!=null and user.realName!=null">
+				and REAL_NAME=#{user.realName}
+			</if>
+			<if test="user!=null and user.money!=null">
+				and MONEY=#{user.money}
+			</if>
+			<if test="user!=null and user.inviteCode!=null">
+				and INVITE_CODE=#{user.inviteCode}
+			</if>
+			<if test="user!=null and user.profession!=null">
+				and PROFESSION=#{user.profession}
+			</if>
+			<if test="user!=null and user.crop!=null">
+				and CROP like concat(concat('%',#{user.crop}),'%')
+			</if>
+			<if test="user!=null and user.cropArea!=null">
+				and CROP_AREA = #{user.cropArea}
+			</if>
+		</where>
+		<if test="rule!=null">
+			order by ${rule} 
+		</if>
+		<if test="pageobject!=null and pageobject.pageSize != 0 and pageobject.pageSize != null">
+			LIMIT #{pageobject.startIndex},#{pageobject.pageSize}
+		</if>
+  
+  
+  </select>
+  
+  <select id="getRoleInfo" resultType="map" parameterType="java.lang.String">
+		SELECT
+			t1.USER_ID,
+			t4.CONTENT
+		FROM
+			t_users t1,
+			t_roles t2,
+			t_user_role t3,
+			t_authoritys t4,
+			t_role_authority t5
+		<where>
+			t1.USER_ID = t3.USER_ID
+		AND t2.ID = t3.ROLE_ID
+		AND t2.ID = t5.ROLE_ID
+		AND t4.ID = t5.AUTHORITY_ID
+		AND t4. STATUS = 1
+			<if test="user!=null and user.userId!=null">
+				AND t1.USER_ID =#{user.userId}
+			</if>
+			<if test="user!=null and user.email!=null">
+				and t1.EMAIL=#{user.email}
+			</if>
+			<if test="user!=null and user.phone!=null">
+				and t1.PHONE=#{user.phone}
+			</if>
+		</where>
+  
+  </select>
+  
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_users
+    where USER_ID = #{userId,jdbcType=VARCHAR}
+  </delete>
+  
+  
+  
+  <insert id="insert" parameterType="com.skd.pojo.User" >
+    insert into t_users (USER_ID, USER_NAME, USER_PHOTO, 
+      UPWD, SEX, AGE, PHONE, 
+      EMAIL, AREA, LOCATION, 
+      REGIS_TIME, REGIS_TYPE, REAL_NAME, 
+      MONEY, INVITE_CODE, PROFESSION, 
+      CROP, CROP_AREA)
+    values (#{userId,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR}, #{userPhoto,jdbcType=VARCHAR}, 
+      #{upwd,jdbcType=VARCHAR}, #{sex,jdbcType=VARCHAR}, #{age,jdbcType=INTEGER}, #{phone,jdbcType=VARCHAR}, 
+      #{email,jdbcType=VARCHAR}, #{area,jdbcType=VARCHAR}, #{location,jdbcType=VARCHAR}, 
+      #{regisTime,jdbcType=TIMESTAMP}, #{regisType,jdbcType=VARCHAR}, #{realName,jdbcType=VARCHAR}, 
+      #{money,jdbcType=INTEGER}, #{inviteCode,jdbcType=VARCHAR}, #{profession,jdbcType=VARCHAR}, 
+      #{crop,jdbcType=VARCHAR}, #{cropArea,jdbcType=DOUBLE})
+  </insert>
+  <insert id="insertSelective" parameterType="com.skd.pojo.User" >
+    insert into t_users
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="userName != null" >
+        USER_NAME,
+      </if>
+      <if test="userPhoto != null" >
+        USER_PHOTO,
+      </if>
+      <if test="upwd != null" >
+        UPWD,
+      </if>
+      <if test="sex != null" >
+        SEX,
+      </if>
+      <if test="age != null" >
+        AGE,
+      </if>
+      <if test="phone != null" >
+        PHONE,
+      </if>
+      <if test="email != null" >
+        EMAIL,
+      </if>
+      <if test="area != null" >
+        AREA,
+      </if>
+      <if test="location != null" >
+        LOCATION,
+      </if>
+      <if test="regisTime != null" >
+        REGIS_TIME,
+      </if>
+      <if test="regisType != null" >
+        REGIS_TYPE,
+      </if>
+      <if test="realName != null" >
+        REAL_NAME,
+      </if>
+      <if test="money != null" >
+        MONEY,
+      </if>
+      <if test="inviteCode != null" >
+        INVITE_CODE,
+      </if>
+      <if test="profession != null" >
+        PROFESSION,
+      </if>
+      <if test="crop != null" >
+        CROP,
+      </if>
+      <if test="cropArea != null" >
+        CROP_AREA,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="userPhoto != null" >
+        #{userPhoto,jdbcType=VARCHAR},
+      </if>
+      <if test="upwd != null" >
+        #{upwd,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        #{sex,jdbcType=VARCHAR},
+      </if>
+      <if test="age != null" >
+        #{age,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="area != null" >
+        #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="location != null" >
+        #{location,jdbcType=VARCHAR},
+      </if>
+      <if test="regisTime != null" >
+        #{regisTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="regisType != null" >
+        #{regisType,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null" >
+        #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="money != null" >
+        #{money,jdbcType=INTEGER},
+      </if>
+      <if test="inviteCode != null" >
+        #{inviteCode,jdbcType=VARCHAR},
+      </if>
+      <if test="profession != null" >
+        #{profession,jdbcType=VARCHAR},
+      </if>
+      <if test="crop != null" >
+        #{crop,jdbcType=VARCHAR},
+      </if>
+      <if test="cropArea != null" >
+        #{cropArea,jdbcType=DOUBLE},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.skd.pojo.User" >
+    update t_users
+    <set >
+      <if test="userName != null" >
+        USER_NAME = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="userPhoto != null" >
+        USER_PHOTO = #{userPhoto,jdbcType=VARCHAR},
+      </if>
+      <if test="upwd != null" >
+        UPWD = #{upwd,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        SEX = #{sex,jdbcType=VARCHAR},
+      </if>
+      <if test="age != null" >
+        AGE = #{age,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null" >
+        PHONE = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        EMAIL = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="area != null" >
+        AREA = #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="location != null" >
+        LOCATION = #{location,jdbcType=VARCHAR},
+      </if>
+      <if test="regisTime != null" >
+        REGIS_TIME = #{regisTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="regisType != null" >
+        REGIS_TYPE = #{regisType,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null" >
+        REAL_NAME = #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="money != null" >
+        MONEY = #{money,jdbcType=INTEGER},
+      </if>
+      <if test="inviteCode != null" >
+        INVITE_CODE = #{inviteCode,jdbcType=VARCHAR},
+      </if>
+      <if test="profession != null" >
+        PROFESSION = #{profession,jdbcType=VARCHAR},
+      </if>
+      <if test="crop != null" >
+        CROP = #{crop,jdbcType=VARCHAR},
+      </if>
+      <if test="cropArea != null" >
+        CROP_AREA = #{cropArea,jdbcType=DOUBLE},
+      </if>
+    </set>
+    where USER_ID = #{userId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.skd.pojo.User" >
+    update t_users
+    set USER_NAME = #{userName,jdbcType=VARCHAR},
+      USER_PHOTO = #{userPhoto,jdbcType=VARCHAR},
+      UPWD = #{upwd,jdbcType=VARCHAR},
+      SEX = #{sex,jdbcType=VARCHAR},
+      AGE = #{age,jdbcType=INTEGER},
+      PHONE = #{phone,jdbcType=VARCHAR},
+      EMAIL = #{email,jdbcType=VARCHAR},
+      AREA = #{area,jdbcType=VARCHAR},
+      LOCATION = #{location,jdbcType=VARCHAR},
+      REGIS_TIME = #{regisTime,jdbcType=TIMESTAMP},
+      REGIS_TYPE = #{regisType,jdbcType=VARCHAR},
+      REAL_NAME = #{realName,jdbcType=VARCHAR},
+      MONEY = #{money,jdbcType=INTEGER},
+      INVITE_CODE = #{inviteCode,jdbcType=VARCHAR},
+      PROFESSION = #{profession,jdbcType=VARCHAR},
+      CROP = #{crop,jdbcType=VARCHAR},
+      CROP_AREA = #{cropArea,jdbcType=DOUBLE}
+    where USER_ID = #{userId,jdbcType=VARCHAR}
+  </update>
+</mapper>

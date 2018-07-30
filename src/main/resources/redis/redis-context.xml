@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-4.1.xsd
+            http://www.springframework.org/schema/cache
+            http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+	<!--扫描redis配置文件 -->
+	<context:property-placeholder
+		ignore-unresolvable="true" location="classpath:properties/redis.properties" />
+	<!-- 启用缓存注解功能，这个是必须的，否则注解不会生效，另外，该注解一定要声明在spring主配置文件中才会生效 -->
+	<cache:annotation-driven cache-manager="myCacheManager" />
+	<!--设置连接池 -->
+	<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxIdle" value="${redis.maxIdle}" />
+		<property name="maxTotal" value="${redis.maxTotal}" />
+		<property name="maxWaitMillis" value="${redis.maxWaitMillis}" />
+		<property name="testOnBorrow" value="${redis.testOnBorrow}" />
+		<property name="testOnReturn" value="${redis.testOnReturn}" />
+	</bean>
+	<!--设置链接属性 -->
+	<bean id="jedisConnectionFactory"
+		class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+		p:hostName="${redis.host}" p:port="${redis.port}" p:password="${redis.password}"
+		p:pool-config-ref="poolConfig" p:timeout="100000" />
+	    <!-- Jedis模板配置RedisTemplate 对 RedisConnection 进行了封装。 提供连接管理，序列化等功能，它对 Redis 
+		的交互进行了更高层次的抽象，极大的方便和简化了 Redis 的操作 -->
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">
+		<property name="connectionFactory" ref="jedisConnectionFactory" />
+		<!--以下针对各种数据进行序列化方式的选择 -->
+		<property name="keySerializer">
+			<bean
+				class="org.springframework.data.redis.serializer.StringRedisSerializer" />
+		</property>
+		<property name="valueSerializer">
+			<bean
+				class="org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer" />
+			
+		</property>
+		<property name="hashKeySerializer">
+			<bean
+				class="org.springframework.data.redis.serializer.StringRedisSerializer" />
+		</property>
+		<property name="hashValueSerializer">
+			<bean
+				class="org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer" />
+		</property>
+		
+		<!--开启事务 -->
+		<property name="enableTransactionSupport" value="true"></property>
+	</bean>
+
+
+	<!-- spring自己的缓存管理器，这里定义了缓存位置名称 ，即注解中的value -->
+	<bean id="myCacheManager" class="com.skd.redis.MyCacheManager">
+
+		<constructor-arg name="redisOperations" ref="redisTemplate" />
+		<!-- 是否使用前缀 默认: -->
+        <property name="usePrefix" value="true" />
+        <!-- 默认有效期1h (60 * 60 = 3600秒) -->
+        <property name="defaultExpiration" value="3600" />
+	</bean>
+	<!-- 配置自定义redis工具类 -->
+	<bean id="redisUtil" class="com.skd.redis.RedisUtil">
+		<property name="redisTemplate" ref="redisTemplate" />
+	</bean>
+
+</beans>

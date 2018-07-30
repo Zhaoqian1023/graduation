@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.skd.dao.ProductTypeDao" >
+  <resultMap id="BaseResultMap" type="com.skd.pojo.ProductType" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="FIRST" property="first" jdbcType="VARCHAR" />
+    <result column="SECOND" property="second" jdbcType="VARCHAR" />
+    <result column="THIRD" property="third" jdbcType="VARCHAR" />
+    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    ID, FIRST, SECOND, THIRD, REMARK
+  </sql>
+  <select id="findProductType" resultMap="BaseResultMap">
+  	    select 
+  			<include refid="Base_Column_List" />
+  		from t_product_type
+  		<where>
+			<if test="1==1">
+				1=1
+			</if>
+			<if test="productType!=null and productType.id!=null">
+				and ID=#{productType.id}
+			</if>
+			<if test="productType!=null and productType.first!=null">
+				and FIRST=#{productType.first}
+			</if>
+			<if test="productType!=null and productType.second!=null">
+				and SECOND=#{productType.second}
+			</if>
+			<if test="productType!=null and productType.third!=null">
+				and THIRD=#{productType.third}
+			</if>
+			<if test="productType!=null and productType.remark!=null">
+				and REMARK like concat(concat('%',#{productType.remark}),'%')
+			</if>
+		</where>
+		<if test="rule!=null">
+			order by ${rule} 
+		</if>
+		<if test="pageobject!=null and pageobject.pageSize != 0 and pageobject.pageSize != null">
+			LIMIT #{pageobject.startIndex},#{pageobject.pageSize}
+		</if>
+  
+  </select>
+  <select id="findObjects" resultType="map">
+  		select 
+  			<include refid="Base_Column_List" />
+  		from t_product_type
+  		<where>
+			<if test="1==1">
+				1=1
+			</if>
+			<if test="entity!=null and entity.id!=null">
+				and ID=#{entity.id}
+			</if>
+			<if test="entity!=null and entity.first!=null">
+				and FIRST=#{entity.first}
+			</if>
+			<if test="entity!=null and entity.second!=null">
+				and SECOND=#{entity.second}
+			</if>
+			<if test="entity!=null and entity.third!=null">
+				and THIRD=#{entity.third}
+			</if>
+			<if test="entity!=null and entity.remark!=null">
+				and REMARK like concat(concat('%',#{entity.remark}),'%')
+			</if>
+		</where>
+		<if test="rule!=null">
+			order by ${rule} 
+		</if>
+		<if test="pageobject!=null and pageobject.pageSize != 0 and pageobject.pageSize != null">
+			LIMIT #{pageobject.startIndex},#{pageobject.pageSize}
+		</if>
+  </select>
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_product_type
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_product_type
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="com.skd.pojo.ProductType" >
+    insert into t_product_type (ID, FIRST, SECOND, 
+      THIRD, REMARK)
+    values (#{id,jdbcType=INTEGER}, #{first,jdbcType=VARCHAR}, #{second,jdbcType=VARCHAR}, 
+      #{third,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.skd.pojo.ProductType" >
+    insert into t_product_type
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="first != null" >
+        FIRST,
+      </if>
+      <if test="second != null" >
+        SECOND,
+      </if>
+      <if test="third != null" >
+        THIRD,
+      </if>
+      <if test="remark != null" >
+        REMARK,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="first != null" >
+        #{first,jdbcType=VARCHAR},
+      </if>
+      <if test="second != null" >
+        #{second,jdbcType=VARCHAR},
+      </if>
+      <if test="third != null" >
+        #{third,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.skd.pojo.ProductType" >
+    update t_product_type
+    <set >
+      <if test="first != null" >
+        FIRST = #{first,jdbcType=VARCHAR},
+      </if>
+      <if test="second != null" >
+        SECOND = #{second,jdbcType=VARCHAR},
+      </if>
+      <if test="third != null" >
+        THIRD = #{third,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        REMARK = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.skd.pojo.ProductType" >
+    update t_product_type
+    set FIRST = #{first,jdbcType=VARCHAR},
+      SECOND = #{second,jdbcType=VARCHAR},
+      THIRD = #{third,jdbcType=VARCHAR},
+      REMARK = #{remark,jdbcType=VARCHAR}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

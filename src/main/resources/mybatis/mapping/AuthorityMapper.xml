@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.skd.dao.AuthorityDao" >
+  <resultMap id="BaseResultMap" type="com.skd.pojo.Authority" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="CONTENT" property="content" jdbcType="VARCHAR" />
+    <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+    <result column="INTERFACE_TYPE" property="interfaceType" jdbcType="INTEGER" />
+    <result column="STATUS" property="status" jdbcType="INTEGER" />
+    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    ID,CONTENT,DESCRIPTION,INTERFACE_TYPE,STATUS,REMARK
+  </sql>
+  
+  <select id="getAuthorities" resultMap="BaseResultMap">
+  	select
+		<include refid="Base_Column_List" />
+	from t_authoritys
+		<where>
+			<if test="1==1">
+				1=1
+			</if>
+			<if test="authority!=null and authority.id!=null">
+				and ID=#{authority.id}
+			</if>
+			<if test="authority!=null and authority.content!=null">
+				and CONTENT=#{authority.content}
+			</if>
+			<if test="authority!=null and authority.description!=null">
+				and DESCRIPTION like concat(concat('%',#{authority.description}),'%')
+			</if>
+			<if test="authority!=null and authority.interfaceType!=null">
+				and INTERFACE_TYPE=#{authority.interfaceType}
+			</if>
+			<if test="authority!=null and authority.status!=null">
+				and STATUS=#{authority.status}
+			</if>
+			<if test="authority!=null and authority.remark!=null">
+				and REMARK LIKE concat(concat('%',#{authority.remark}),'%')
+			</if>
+		</where>
+  
+  </select>
+  
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_authoritys
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_authoritys
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="com.skd.pojo.Authority" >
+    insert into t_authoritys (ID, CONTENT, REMARK
+      )
+    values (#{id,jdbcType=INTEGER}, #{content,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.skd.pojo.Authority" >
+    insert into t_authoritys
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="content != null" >
+        CONTENT,
+      </if>
+      <if test="remark != null" >
+        REMARK,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.skd.pojo.Authority" >
+    update t_authoritys
+    <set >
+      <if test="content != null" >
+        CONTENT = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        REMARK = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.skd.pojo.Authority" >
+    update t_authoritys
+    set CONTENT = #{content,jdbcType=VARCHAR},
+      REMARK = #{remark,jdbcType=VARCHAR}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

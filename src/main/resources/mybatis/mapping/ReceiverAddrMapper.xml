@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.skd.dao.ReceiverAddrDao" >
+  <resultMap id="BaseResultMap" type="com.skd.pojo.ReceiverAddr" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="RECEIVER_NAME" property="receiverName" jdbcType="VARCHAR" />
+    <result column="PHONE" property="phone" jdbcType="VARCHAR" />
+    <result column="ADDRESS" property="address" jdbcType="VARCHAR" />
+    <result column="POSRCODE" property="posrcode" jdbcType="VARCHAR" />
+    <result column="STATUS" property="status" jdbcType="INTEGER" />
+    <result column="FLAG" property="flag" jdbcType="INTEGER" />
+    <result column="USER_ID" property="userId" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    ID, RECEIVER_NAME, PHONE, ADDRESS, POSRCODE, STATUS, FLAG, USER_ID
+  </sql>
+  
+  <select id="findObjects" resultType="map">
+		select
+		<include refid="Base_Column_List" />
+		
+		from t_receiver_addr
+		<where>
+			<if test="1==1">
+				1=1
+			</if>
+			<if test="entity!=null and entity.id!=null">
+				and ID=#{entity.id}
+			</if>
+			<if test="entity!=null and entity.receiverName!=null">
+				and RECEIVER_NAME like concat(concat('%',#{entity.receiverName}),'%')
+			</if>
+			<if test="entity!=null and entity.phone!=null">
+				and PHONE like concat(concat('%',#{entity.phone}),'%')
+			</if>
+			<if test="entity!=null and entity.address!=null">
+				and ADDRESS like concat(concat('%',#{entity.address}),'%')
+			</if>
+			<if test="entity!=null and entity.posrcode!=null">
+				and POSRCODE like concat(concat('%',#{entity.posrcode}),'%')
+			</if>
+			<if test="entity!=null and entity.status!=null">
+				and STATUS=#{entity.status}
+			</if>
+			<if test="entity!=null and entity.flag!=null">
+				and FLAG =#{entity.flag}
+			</if>
+			<if test="entity!=null and entity.userId!=null">
+				and USER_ID =#{entity.userId}
+			</if>
+		</where>
+		<if test="rule!=null">
+			order by ${rule} 
+		</if>
+		<if test="pageobject!=null and pageobject.pageSize != 0 and pageobject.pageSize != null">
+			LIMIT #{pageobject.startIndex},#{pageobject.pageSize}
+		</if>
+	</select>
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_receiver_addr
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_receiver_addr
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="com.skd.pojo.ReceiverAddr" >
+    insert into t_receiver_addr (ID, RECEIVER_NAME, PHONE, 
+      ADDRESS, POSRCODE, STATUS, 
+      FLAG, USER_ID)
+    values (#{id,jdbcType=INTEGER}, #{receiverName,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, 
+      #{address,jdbcType=VARCHAR}, #{posrcode,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
+      #{flag,jdbcType=INTEGER}, #{userId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.skd.pojo.ReceiverAddr" >
+    insert into t_receiver_addr
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="receiverName != null" >
+        RECEIVER_NAME,
+      </if>
+      <if test="phone != null" >
+        PHONE,
+      </if>
+      <if test="address != null" >
+        ADDRESS,
+      </if>
+      <if test="posrcode != null" >
+        POSRCODE,
+      </if>
+      <if test="status != null" >
+        STATUS,
+      </if>
+      <if test="flag != null" >
+        FLAG,
+      </if>
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="receiverName != null" >
+        #{receiverName,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="posrcode != null" >
+        #{posrcode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="flag != null" >
+        #{flag,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.skd.pojo.ReceiverAddr" >
+    update t_receiver_addr
+    <set >
+      <if test="receiverName != null" >
+        RECEIVER_NAME = #{receiverName,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        PHONE = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        ADDRESS = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="posrcode != null" >
+        POSRCODE = #{posrcode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        STATUS = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="flag != null" >
+        FLAG = #{flag,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        USER_ID = #{userId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.skd.pojo.ReceiverAddr" >
+    update t_receiver_addr
+    set RECEIVER_NAME = #{receiverName,jdbcType=VARCHAR},
+      PHONE = #{phone,jdbcType=VARCHAR},
+      ADDRESS = #{address,jdbcType=VARCHAR},
+      POSRCODE = #{posrcode,jdbcType=VARCHAR},
+      STATUS = #{status,jdbcType=INTEGER},
+      FLAG = #{flag,jdbcType=INTEGER},
+      USER_ID = #{userId,jdbcType=VARCHAR}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

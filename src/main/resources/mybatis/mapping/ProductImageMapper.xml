@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.skd.dao.ProductImageDao" >
+  <resultMap id="BaseResultMap" type="com.skd.pojo.ProductImage" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="IMAGE_ID" property="imageId" jdbcType="INTEGER" />
+    <result column="PID" property="pid" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    ID, IMAGE_ID, PID
+  </sql>
+  
+  <select id="getImagesByProduct" resultType="map">
+		SELECT
+			t2.IMAGE_URL
+		FROM
+			t_product_image t1,
+			t_images t2
+		WHERE
+			t1.IMAGE_ID = t2.IMAGE_ID
+		AND t2.IMAGE_TYPE = #{imagetype}
+		AND t1.PID = #{pid}
+  </select>
+  
+  
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_product_image
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="com.skd.pojo.ProductImage" >
+    insert into t_product_image (ID, IMAGE_ID, PID
+      )
+    values (#{id,jdbcType=INTEGER}, #{imageId,jdbcType=INTEGER}, #{pid,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.skd.pojo.ProductImage" >
+    insert into t_product_image
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="imageId != null" >
+        IMAGE_ID,
+      </if>
+      <if test="pid != null" >
+        PID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="imageId != null" >
+        #{imageId,jdbcType=INTEGER},
+      </if>
+      <if test="pid != null" >
+        #{pid,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.skd.pojo.ProductImage" >
+    update t_product_image
+    <set >
+      <if test="imageId != null" >
+        IMAGE_ID = #{imageId,jdbcType=INTEGER},
+      </if>
+      <if test="pid != null" >
+        PID = #{pid,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.skd.pojo.ProductImage" >
+    update t_product_image
+    set IMAGE_ID = #{imageId,jdbcType=INTEGER},
+      PID = #{pid,jdbcType=VARCHAR}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

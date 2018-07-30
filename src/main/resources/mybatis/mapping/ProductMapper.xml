@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.skd.dao.ProductDao">
+	<resultMap id="BaseResultMap" type="com.skd.pojo.Product">
+		<id column="PID" property="pid" jdbcType="VARCHAR" />
+		<result column="PROUCT_NAME" property="prouctName" jdbcType="VARCHAR" />
+		<result column="PRICE_NOW" property="priceNow" jdbcType="INTEGER" />
+		<result column="PRICE_BEFORE" property="priceBefore" jdbcType="INTEGER" />
+		<result column="PRODUCT_MODEL" property="productModel"
+			jdbcType="VARCHAR" />
+		<result column="PRODUCT_UNIT" property="productUnit" jdbcType="VARCHAR" />
+		<result column="STORAGE" property="storage" jdbcType="DOUBLE" />
+		<result column="STATUS" property="status" jdbcType="INTEGER" />
+		<result column="REMARK" property="remark" jdbcType="VARCHAR" />
+		<result column="PRODUCT_TYPE" property="productType" jdbcType="INTEGER" />
+		<result column="STORE_ID" property="storeId" jdbcType="VARCHAR" />
+		<result column="DELIVER_PRICE" property="deliverPrice"
+			jdbcType="INTEGER" />
+	</resultMap>
+	<resultMap id="ResultMapWithBLOBs" type="com.skd.pojo.Product"
+		extends="BaseResultMap">
+		<result column="DESCRIPTION" property="description" jdbcType="LONGVARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		PID, PROUCT_NAME, PRICE_NOW, PRICE_BEFORE, PRODUCT_MODEL, PRODUCT_UNIT,
+		STORAGE,
+		STATUS, REMARK, PRODUCT_TYPE, STORE_ID, DELIVER_PRICE
+	</sql>
+	<sql id="Blob_Column_List">
+		DESCRIPTION
+	</sql>
+	
+	<select id="getList" resultMap="ResultMapWithBLOBs">
+			select 
+				<include refid="Base_Column_List" />
+					,
+				<include refid="Blob_Column_List" />
+			from t_products
+			where PID IN 
+			<foreach item="productId" index="index" collection="productId" 
+		                         open="(" separator="," close=")">
+		                        #{productId}
+		    </foreach>
+	
+	
+	</select>
+	
+	<select id="getShoppingProduct" resultType="map">
+		SELECT
+			tA.PID,
+			tA.PROUCT_NAME,
+			tA.IMAGE_URL,
+			tA.PRICE_NOW,
+			tA. STORAGE,
+			tA.STORE_ID,
+			t2.STORE_NAME
+		FROM
+			(
+				SELECT
+					t1.PID,
+					t1.PROUCT_NAME,
+					t1.PRICE_NOW,
+					t1. STORAGE,
+					t1.STORE_ID,
+					t3.IMAGE_URL
+				FROM
+					t_products t1,
+					t_product_image t2,
+					t_images t3
+				WHERE
+					t1.PID = t2.PID
+				AND t2.IMAGE_ID = t3.IMAGE_ID
+				AND t1. STATUS = 1
+				AND t1. STORAGE <![CDATA[ > ]]> 0
+				GROUP BY
+					t1.PID
+			) tA,
+			t_stores t2
+		WHERE
+			tA.STORE_ID = t2.SID
+		AND tA.PID IN 
+		<foreach item="productId" index="index" collection="productId" 
+                         open="(" separator="," close=")">
+                        #{productId}
+         </foreach>
+		ORDER BY
+			tA.STORE_ID;	
+	</select>
+	
+	<select id="statisticsSale" resultType="int">
+		SELECT
+			count(0)
+		FROM
+			t_orders t1
+		WHERE
+			(
+				t1.`STATUS` != '退货'
+				and t1.`STATUS` != '退单'
+				and t1.`STATUS` != '待支付'
+			)
+		AND t1.PRODUCT_ID = #{productid}	
+	
+	</select>
+	
+	<select id="getProductByTypeAndPage" resultType="map">
+		SELECT
+			TA.PID,
+			TA.PROUCT_NAME,
+			TA.PRICE_NOW,
+			TA.PRICE_BEFORE,
+			TA.PRODUCT_MODEL,
+			TA.IMAGE_URL,
+			CASE
+		WHEN TB.SALES IS NULL THEN
+			0
+		ELSE
+			TB.SALES
+		END AS SALES
+		FROM
+			(
+				SELECT
+					t1.PID,
+					t1.PROUCT_NAME,
+					t1.PRICE_NOW,
+					t1.PRICE_BEFORE,
+					T1.PRODUCT_MODEL,
+					t4.IMAGE_URL
+				FROM
+					t_products t1,
+					t_product_type t2,
+					t_product_image t3,
+					t_images t4
+				<where>
+					t1.PRODUCT_TYPE = t2.ID
+				AND t1.PID = t3.PID
+				AND t4.IMAGE_ID = t3.IMAGE_ID
+				AND t1. STATUS = 1
+				AND t1. STORAGE <![CDATA[ > ]]> 0
+				AND t4.IMAGE_TYPE = 1
+				<if test="productType!=null and productType.id!=null">
+					and t2.ID=#{productType.id}
+				</if>
+				<if test="productType!=null and productType.first!=null">
+					and t2.FIRST=#{productType.first}
+				</if>
+				<if test="productType!=null and productType.second!=null">
+					and t2.SECOND=#{productType.second}
+				</if>
+				<if test="productType!=null and productType.third!=null">
+					and t2.THIRD=#{productType.third}
+				</if>
+				<if test="productType!=null and productType.remark!=null">
+					and t2.REMARK like concat(concat('%',#{productType.remark}),'%')
+				</if>
+				</where>
+				
+				GROUP BY
+					t1.PID
+			) TA
+		LEFT JOIN (
+			SELECT
+				t5.PRODUCT_ID,
+				COUNT(1) AS SALES
+			FROM
+				t_orders t5
+			WHERE
+				T5. STATUS != '退货'
+			AND t5. STATUS != '退单'
+			AND t5. STATUS != '待支付'
+			GROUP BY
+				t5.PRODUCT_ID
+		) TB ON (TA.PID = TB.PRODUCT_ID) 
+		<if test="rule!=null">
+		     order by ${rule}
+		</if>
+		<if test="pageobject!=null and pageobject.pageSize != 0 and pageobject.pageSize != null">
+			LIMIT #{pageobject.startIndex},#{pageobject.pageSize}
+		</if>
+	</select>
+	
+	
+	<select id="getIndexData" resultType="map">
+		SELECT
+			t1.PID,
+			t1.PROUCT_NAME,
+			t1.PRICE_NOW,
+			t4.IMAGE_URL
+		FROM
+			t_products t1,
+			t_product_type t2,
+			t_product_image t3,
+			t_images t4
+		<where>
+			t1.PRODUCT_TYPE = t2.ID
+		AND t1.PID = t3.PID
+		AND t3.IMAGE_ID = t4.IMAGE_ID
+		AND t1.STATUS = 1
+		AND t1.STORAGE <![CDATA[ > ]]> 0
+		AND t4.IMAGE_TYPE = 1
+			<if test="productType!=null and productType.id!=null">
+				and t2.ID=#{productType.id}
+			</if>
+			<if test="productType!=null and productType.first!=null">
+				and t2.FIRST=#{productType.first}
+			</if>
+			<if test="productType!=null and productType.second!=null">
+				and t2.SECOND=#{productType.second}
+			</if>
+			<if test="productType!=null and productType.third!=null">
+				and t2.THIRD=#{productType.third}
+			</if>
+			<if test="productType!=null and productType.remark!=null">
+				and t2.REMARK like concat(concat('%',#{productType.remark}),'%')
+			</if>
+		</where>
+		GROUP BY
+			t1.PID
+		<if test="pageobject!=null and pageobject.pageSize != 0 and pageobject.pageSize != null">
+			LIMIT #{pageobject.startIndex},#{pageobject.pageSize}
+		</if>
+	
+	</select>
+	<select id="findById" resultType="map">
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		from t_products
+		where PID=#{id}
+	
+	</select>
+
+	<select id="getCount" resultType="java.lang.Integer">
+		select count(0)
+		from t_products
+		<where>
+			<if test="1==1">
+				1=1
+			</if>
+			<if test="product!=null and product.pid!=null">
+				and PID=#{product.pid}
+			</if>
+			<if test="product!=null and product.prouctName!=null">
+				and PROUCT_NAME like concat(concat('%',#{product.prouctName}),'%')
+			</if>
+			<if test="product!=null and product.priceNow!=null">
+				and PRICE_NOW=#{product.priceNow}
+			</if>
+			<if test="product!=null and product.priceBefore!=null">
+				and PRICE_BEFORE=#{product.priceBefore}
+			</if>
+			<if test="product!=null and product.productModel!=null">
+				and PRODUCT_MODEL=#{product.productModel}
+			</if>
+			<if test="product!=null and product.productUnit!=null">
+				and PRODUCT_UNIT=#{product.productUnit}
+			</if>
+			<if test="product!=null and product.storage!=null">
+				and STORAGE=#{product.storage}
+			</if>
+			<if test="product!=null and product.status!=null">
+				and STATUS=#{product.status}
+			</if>
+			<if test="product!=null and product.remark!=null">
+				and REMARK=#{product.remark}
+			</if>
+			<if test="product!=null and product.productType!=null">
+				and PRODUCT_TYPE=#{product.productType}
+			</if>
+			<if test="product!=null and product.storeId!=null">
+				and STORE_ID=#{product.storeId}
+			</if>
+			<if test="product!=null and product.deliverPrice!=null">
+				and DELIVER_PRICE=#{product.deliverPrice}
+			</if>
+			<if test="product!=null and product.description!=null">
+				and DESCRIPTION like concat(concat('%',#{product.description}),'%')
+			</if>
+		</where>
+	</select>
+	
+	<select id="findObjects" resultType="map">
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		from t_products
+		<where>
+			<if test="1==1">
+				1=1
+			</if>
+			<if test="entity!=null and entity.pid!=null">
+				and PID=#{entity.pid}
+			</if>
+			<if test="entity!=null and entity.prouctName!=null">
+				and PROUCT_NAME like concat(concat('%',#{entity.prouctName}),'%')
+			</if>
+			<if test="entity!=null and entity.priceNow!=null">
+				and PRICE_NOW=#{entity.priceNow}
+			</if>
+			<if test="entity!=null and entity.priceBefore!=null">
+				and PRICE_BEFORE=#{entity.priceBefore}
+			</if>
+			<if test="entity!=null and entity.productModel!=null">
+				and PRODUCT_MODEL=#{entity.productModel}
+			</if>
+			<if test="entity!=null and entity.productUnit!=null">
+				and PRODUCT_UNIT=#{entity.productUnit}
+			</if>
+			<if test="entity!=null and entity.storage!=null">
+				and STORAGE=#{entity.storage}
+			</if>
+			<if test="entity!=null and entity.status!=null">
+				and STATUS=#{entity.status}
+			</if>
+			<if test="entity!=null and entity.remark!=null">
+				and REMARK=#{entity.remark}
+			</if>
+			<if test="entity!=null and entity.productType!=null">
+				and PRODUCT_TYPE=#{entity.productType}
+			</if>
+			<if test="entity!=null and entity.storeId!=null">
+				and STORE_ID=#{entity.storeId}
+			</if>
+			<if test="entity!=null and entity.deliverPrice!=null">
+				and DELIVER_PRICE=#{entity.deliverPrice}
+			</if>
+			<if test="entity!=null and entity.description!=null">
+				and DESCRIPTION like concat(concat('%',#{entity.description}),'%')
+			</if>
+		</where>
+		<if test="rule!=null">
+			order by ${rule} 
+		</if>
+		<if test="pageobject!=null and pageobject.pageSize != 0 and pageobject.pageSize != null">
+			LIMIT #{pageobject.startIndex},#{pageobject.pageSize}
+		</if>
+	</select>
+	
+
+	<select id="getProducts" resultMap="ResultMapWithBLOBs">
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		from t_products
+		<where>
+			<if test="1==1">
+				1=1
+			</if>
+			<if test="product!=null and product.pid!=null">
+				and PID=#{product.pid}
+			</if>
+			<if test="product!=null and product.prouctName!=null">
+				and PROUCT_NAME like concat(concat('%',#{product.prouctName}),'%')
+			</if>
+			<if test="product!=null and product.priceNow!=null">
+				and PRICE_NOW=#{product.priceNow}
+			</if>
+			<if test="product!=null and product.priceBefore!=null">
+				and PRICE_BEFORE=#{product.priceBefore}
+			</if>
+			<if test="product!=null and product.productModel!=null">
+				and PRODUCT_MODEL=#{product.productModel}
+			</if>
+			<if test="product!=null and product.productUnit!=null">
+				and PRODUCT_UNIT=#{product.productUnit}
+			</if>
+			<if test="product!=null and product.storage!=null">
+				and STORAGE=#{product.storage}
+			</if>
+			<if test="product!=null and product.status!=null">
+				and STATUS=#{product.status}
+			</if>
+			<if test="product!=null and product.remark!=null">
+				and REMARK=#{product.remark}
+			</if>
+			<if test="product!=null and product.productType!=null">
+				and PRODUCT_TYPE=#{product.productType}
+			</if>
+			<if test="product!=null and product.storeId!=null">
+				and STORE_ID=#{product.storeId}
+			</if>
+			<if test="product!=null and product.deliverPrice!=null">
+				and DELIVER_PRICE=#{product.deliverPrice}
+			</if>
+			<if test="product!=null and product.description!=null">
+				and DESCRIPTION like concat(concat('%',#{product.description}),'%')
+			</if>
+		</where>
+		<if test="rule!=null">
+			order by ${rule} 
+		</if>
+		<if test="pageobject!=null and pageobject.pageSize != 0 and pageobject.pageSize != null">
+			LIMIT #{pageobject.startIndex},#{pageobject.pageSize}
+		</if>
+	</select>
+
+	<insert id="addProduct" parameterType="com.skd.pojo.Product">
+		insert into t_products (PID, PROUCT_NAME, PRICE_NOW,
+		PRICE_BEFORE, PRODUCT_MODEL, PRODUCT_UNIT,
+		STORAGE, STATUS, REMARK,
+		PRODUCT_TYPE, STORE_ID, DELIVER_PRICE,
+		DESCRIPTION)
+		values (#{product.pid,jdbcType=VARCHAR}, #{product.prouctName,jdbcType=VARCHAR},
+		#{product.priceNow,jdbcType=INTEGER},
+		#{product.priceBefore,jdbcType=INTEGER}, #{product.productModel,jdbcType=VARCHAR}, 
+		#{product.productUnit,jdbcType=VARCHAR},
+		#{product.storage,jdbcType=DOUBLE}, #{product.status,jdbcType=INTEGER},
+		#{product.remark,jdbcType=VARCHAR},
+		#{product.productType,jdbcType=INTEGER}, #{product.storeId,jdbcType=VARCHAR}, 
+		#{product.deliverPrice,jdbcType=INTEGER},
+		#{product.description,jdbcType=LONGVARCHAR})
+	</insert>
+	
+	<insert id="addProductSelective" parameterType="com.skd.pojo.Product">
+		insert into t_products
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="product.pid != null">
+				PID,
+			</if>
+			<if test="product.prouctName != null">
+				PROUCT_NAME,
+			</if>
+			<if test="product.priceNow != null">
+				PRICE_NOW,
+			</if>
+			<if test="product.priceBefore != null">
+				PRICE_BEFORE,
+			</if>
+			<if test="product.productModel != null">
+				PRODUCT_MODEL,
+			</if>
+			<if test="product.productUnit != null">
+				PRODUCT_UNIT,
+			</if>
+			<if test="product.storage != null">
+				STORAGE,
+			</if>
+			<if test="product.status != null">
+				STATUS,
+			</if>
+			<if test="product.remark != null">
+				REMARK,
+			</if>
+			<if test="product.productType != null">
+				PRODUCT_TYPE,
+			</if>
+			<if test="product.storeId != null">
+				STORE_ID,
+			</if>
+			<if test="product.deliverPrice != null">
+				DELIVER_PRICE,
+			</if>
+			<if test="product.description != null">
+				DESCRIPTION,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="product.pid != null">
+				#{product.pid,jdbcType=VARCHAR},
+			</if>
+			<if test="product.prouctName != null">
+				#{product.prouctName,jdbcType=VARCHAR},
+			</if>
+			<if test="product.priceNow != null">
+				#{product.priceNow,jdbcType=INTEGER},
+			</if>
+			<if test="product.priceBefore != null">
+				#{product.priceBefore,jdbcType=INTEGER},
+			</if>
+			<if test="product.productModel != null">
+				#{product.productModel,jdbcType=VARCHAR},
+			</if>
+			<if test="product.productUnit != null">
+				#{product.productUnit,jdbcType=VARCHAR},
+			</if>
+			<if test="product.storage != null">
+				#{product.storage,jdbcType=DOUBLE},
+			</if>
+			<if test="product.status != null">
+				#{product.status,jdbcType=INTEGER},
+			</if>
+			<if test="product.remark != null">
+				#{product.remark,jdbcType=VARCHAR},
+			</if>
+			<if test="product.productType != null">
+				#{product.productType,jdbcType=INTEGER},
+			</if>
+			<if test="product.storeId != null">
+				#{product.storeId,jdbcType=VARCHAR},
+			</if>
+			<if test="product.deliverPrice != null">
+				#{product.deliverPrice,jdbcType=INTEGER},
+			</if>
+			<if test="product.description != null">
+				#{product.description,jdbcType=LONGVARCHAR},
+			</if>
+		</trim>
+	</insert>
+	
+	<update id="updateProductByKey" parameterType="com.skd.pojo.Product">
+		update t_products
+		set PROUCT_NAME = #{prouctName,jdbcType=VARCHAR},
+		PRICE_NOW = #{priceNow,jdbcType=INTEGER},
+		PRICE_BEFORE = #{priceBefore,jdbcType=INTEGER},
+		PRODUCT_MODEL = #{productModel,jdbcType=VARCHAR},
+		PRODUCT_UNIT = #{productUnit,jdbcType=VARCHAR},
+		STORAGE = #{storage,jdbcType=DOUBLE},
+		STATUS = #{status,jdbcType=INTEGER},
+		REMARK = #{remark,jdbcType=VARCHAR},
+		PRODUCT_TYPE = #{productType,jdbcType=INTEGER},
+		STORE_ID = #{storeId,jdbcType=VARCHAR},
+		DELIVER_PRICE = #{deliverPrice,jdbcType=INTEGER},
+		DESCRIPTION = #{description,jdbcType=LONGVARCHAR}
+		where PID = #{pid,jdbcType=VARCHAR}
+	</update>
+	
+	<update id="updateProductSelectiveByKey" parameterType="com.skd.pojo.Product">
+		update t_products
+		<set>
+			<if test="product.prouctName != null">
+				PROUCT_NAME = #{product.prouctName,jdbcType=VARCHAR},
+			</if>
+			<if test="product.priceNow != null">
+				PRICE_NOW = #{priceNow,jdbcType=INTEGER},
+			</if>
+			<if test="product.priceBefore != null">
+				PRICE_BEFORE = #{product.priceBefore,jdbcType=INTEGER},
+			</if>
+			<if test="product.productModel != null">
+				PRODUCT_MODEL = #{product.productModel,jdbcType=VARCHAR},
+			</if>
+			<if test="product.productUnit != null">
+				PRODUCT_UNIT = #{product.productUnit,jdbcType=VARCHAR},
+			</if>
+			<if test="product.storage != null">
+				STORAGE = #{product.storage,jdbcType=DOUBLE},
+			</if>
+			<if test="product.status != null">
+				STATUS = #{product.status,jdbcType=INTEGER},
+			</if>
+			<if test="product.remark != null">
+				REMARK = #{product.remark,jdbcType=VARCHAR},
+			</if>
+			<if test="product.productType != null">
+				PRODUCT_TYPE = #{product.productType,jdbcType=INTEGER},
+			</if>
+			<if test="product.storeId != null">
+				STORE_ID = #{product.storeId,jdbcType=VARCHAR},
+			</if>
+			<if test="product.deliverPrice != null">
+				DELIVER_PRICE = #{product.deliverPrice,jdbcType=INTEGER},
+			</if>
+			<if test="product.description != null">
+				DESCRIPTION = #{product.description,jdbcType=LONGVARCHAR},
+			</if>
+		</set>
+		where PID = #{product.pid,jdbcType=VARCHAR}
+	</update>
+	
+</mapper>
